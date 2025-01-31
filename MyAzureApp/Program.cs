@@ -11,7 +11,6 @@ var app = builder.Build();
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
-
-app.MapGet("/", () => "Hello, Azure Web App with .NET!");
-
+app.UseStaticFiles();
+app.MapGet("/", () => "Hello! Visit /welcome.html to see your new content.");
 app.Run();
