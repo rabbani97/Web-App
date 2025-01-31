@@ -35,7 +35,7 @@ jobs:
 
       # ✅ Upload Security Scan Report as an Artifact
       - name: Upload OWASP Security Scan Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
           path: reports
