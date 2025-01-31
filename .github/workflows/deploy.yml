@@ -14,25 +14,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ✅ Download and Install .NET 9 (Latest Preview)
-      - name: Install .NET 9 SDK Preview
-        run: |
-          DOTNET_SDK_VERSION="9.0.100-preview.4"
-          DOTNET_INSTALL_DIR="/usr/share/dotnet"
-          mkdir -p $DOTNET_INSTALL_DIR
-          
-          wget -O dotnet-install.sh https://dot.net/v1/dotnet-install.sh
-          chmod +x dotnet-install.sh
-          ./dotnet-install.sh --install-dir $DOTNET_INSTALL_DIR --version $DOTNET_SDK_VERSION --runtime dotnet
-
-          echo "DOTNET_ROOT=$DOTNET_INSTALL_DIR" >> $GITHUB_ENV
-          echo "$DOTNET_INSTALL_DIR" >> $GITHUB_PATH
-
-      # ✅ Setup .NET 9 SDK
+      # ✅ Setup .NET Core SDK
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '9.0.100-preview.4'
+          dotnet-version: '9.0.100-preview.4'  # Use the appropriate .NET 9 version
 
       # ✅ Restore Dependencies
       - name: Restore Dependencies
