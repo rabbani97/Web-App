@@ -14,13 +14,28 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # ✅ Install .NET 9 (Preview)
+      - name: Install .NET 9 Preview
+        run: |
+          wget https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-9.0.100-preview.4-linux-x64-binaries
+          tar -xvf dotnet-sdk-9.0.100-preview.4-linux-x64-binaries.tar.gz -C /usr/share/dotnet
+          export DOTNET_ROOT=/usr/share/dotnet
+          export PATH=$DOTNET_ROOT:$PATH
+
+      # ✅ Setup .NET 9 SDK
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.100-preview.4'
+
+      # ✅ SonarQube Code Quality Analysis
       - name: Run SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"rabbani97_Web-App" /o:"rabbani97" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-          dotnet build
+          dotnet sonarscanner begin /k:"uniquewebappnamerabbani" /o:"rabbani97" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet build --configuration Release
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
       # ✅ OWASP Dependency Check - Security Scan
@@ -32,7 +47,7 @@ jobs:
           format: "HTML"
           out: "reports"
 
-      # ✅ Upload Security Scan Report as an Artifact
+      # ✅ Upload Security Scan Report (Fixed Version)
       - name: Upload OWASP Security Scan Report
         uses: actions/upload-artifact@v4
         with:
@@ -40,7 +55,7 @@ jobs:
           path: reports
 
   deploy:
-    name: Deploy .NET App to Azure
+    name: Deploy .NET 9 App to Azure
     runs-on: ubuntu-latest
     needs: code-quality-and-security  # Ensures SonarQube & OWASP run before deployment
 
@@ -48,21 +63,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ✅ Setup .NET Core
+      # ✅ Install .NET 9 (Preview)
+      - name: Install .NET 9 Preview
+        run: |
+          wget https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-9.0.100-preview.4-linux-x64-binaries
+          tar -xvf dotnet-sdk-9.0.100-preview.4-linux-x64-binaries.tar.gz -C /usr/share/dotnet
+          export DOTNET_ROOT=/usr/share/dotnet
+          export PATH=$DOTNET_ROOT:$PATH
+
+      # ✅ Setup .NET 9 SDK
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0'  # Change based on your project version
+          dotnet-version: '9.0.100-preview.4'
 
       # ✅ Restore Dependencies
       - name: Restore Dependencies
         run: dotnet restore
 
-      # ✅ Build .NET Application
+      # ✅ Build .NET 9 Application
       - name: Build Application
         run: dotnet build --configuration Release --no-restore
 
-      # ✅ Publish .NET Application
+      # ✅ Publish .NET 9 Application
       - name: Publish Application
         run: dotnet publish -c Release -o app
 
