@@ -52,7 +52,7 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '9.0'  # Change based on your project version
+          dotnet-version: '8.0'  # Change based on your project version
 
       # ✅ Restore Dependencies
       - name: Restore Dependencies
