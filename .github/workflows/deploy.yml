@@ -1,0 +1,81 @@
+name: Code Quality, Security Scan, and Deploy to Azure
+
+on:
+  push:
+    branches:
+      - main  # Triggers when code is pushed to the main branch
+
+jobs:
+  code-quality-and-security:
+    name: Code Quality & Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ✅ SonarQube Code Quality Analysis
+      - name: Run SonarQube Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn verify sonar:sonar \
+            -Dsonar.projectKey=rabbani97 \
+            -Dsonar.organization=rabbani97 \
+            -Dsonar.host.url=https://sonarcloud.io
+
+      # ✅ OWASP Dependency Check - Security Scan
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@1.1.0
+        with:
+          project: "uniquewebappnamerabbani"
+          path: "."
+          format: "HTML"
+          out: "reports"
+
+      # ✅ Upload Security Scan Report as an Artifact
+      - name: Upload OWASP Security Scan Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-check-report
+          path: reports
+
+  deploy:
+    name: Deploy .NET App to Azure
+    runs-on: ubuntu-latest
+    needs: code-quality-and-security  # Ensures SonarQube & OWASP run before deployment
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ✅ Setup .NET Core
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0'  # Change based on your project version
+
+      # ✅ Restore Dependencies
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      # ✅ Build .NET Application
+      - name: Build Application
+        run: dotnet build --configuration Release --no-restore
+
+      # ✅ Publish .NET Application
+      - name: Publish Application
+        run: dotnet publish -c Release -o app
+
+      # ✅ Azure Login
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # ✅ Deploy to Azure Web App
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "uniquewebappnamerabbani"
+          package: ./app
