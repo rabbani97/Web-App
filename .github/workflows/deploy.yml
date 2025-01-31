@@ -14,15 +14,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ✅ SonarQube Code Quality Analysis
       - name: Run SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn verify sonar:sonar \
-            -Dsonar.projectKey=rabbani97 \
-            -Dsonar.organization=rabbani97 \
-            -Dsonar.host.url=https://sonarcloud.io
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet sonarscanner begin /k:"rabbani97_Web-App" /o:"rabbani97" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet build
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
       # ✅ OWASP Dependency Check - Security Scan
       - name: Run OWASP Dependency Check
