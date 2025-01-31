@@ -1,4 +1,4 @@
-name: Deploy .NET App to Azure
+name: Build, Publish, and Deploy .NET 8 App to Azure
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ✅ Setup .NET 8 SDK (Fully Supported)
+      # ✅ Setup .NET 8 SDK
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v3
         with:
@@ -22,17 +22,17 @@ jobs:
 
       # ✅ Restore Dependencies
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore MyAzureApp/MyAzureApp.csproj  # Specify project file
 
       # ✅ Build .NET 8 Application
       - name: Build Application
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore MyAzureApp/MyAzureApp.csproj  # Specify project file
 
-      # ✅ Publish .NET 8 Application
+      # ✅ Publish .NET 8 Application (Prepares for Deployment)
       - name: Publish Application
-        run: dotnet publish -c Release -o app
+        run: dotnet publish MyAzureApp/MyAzureApp.csproj -c Release -o app  # Specify project file
 
-      # ✅ Azure Login
+      # ✅ Azure Login (Uses GitHub Secret for Credentials)
       - name: Login to Azure
         uses: azure/login@v1
         with:
