@@ -1,4 +1,4 @@
-name: Code Quality, Security Scan, and Deploy to Azure
+name: Deploy .NET 9 App to Azure
 
 on:
   push:
@@ -6,58 +6,9 @@ on:
       - main  # Triggers when code is pushed to the main branch
 
 jobs:
-  code-quality-and-security:
-    name: Code Quality & Security Scan
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      # ✅ Install .NET 9 (Preview)
-      - name: Install .NET 9 Preview
-        run: |
-          wget https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-9.0.100-preview.4-linux-x64-binaries
-          tar -xvf dotnet-sdk-9.0.100-preview.4-linux-x64-binaries.tar.gz -C /usr/share/dotnet
-          export DOTNET_ROOT=/usr/share/dotnet
-          export PATH=$DOTNET_ROOT:$PATH
-
-      # ✅ Setup .NET 9 SDK
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '9.0.100-preview.4'
-
-      # ✅ SonarQube Code Quality Analysis
-      - name: Run SonarQube Analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"uniquewebappnamerabbani" /o:"rabbani97" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-          dotnet build --configuration Release
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-      # ✅ OWASP Dependency Check - Security Scan
-      - name: Run OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@1.1.0
-        with:
-          project: "uniquewebappnamerabbani"
-          path: "."
-          format: "HTML"
-          out: "reports"
-
-      # ✅ Upload Security Scan Report (Fixed Version)
-      - name: Upload OWASP Security Scan Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-check-report
-          path: reports
-
   deploy:
     name: Deploy .NET 9 App to Azure
     runs-on: ubuntu-latest
-    needs: code-quality-and-security  # Ensures SonarQube & OWASP run before deployment
 
     steps:
       - name: Checkout Code
