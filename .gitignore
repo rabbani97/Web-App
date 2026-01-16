@@ -3,3 +3,12 @@ terraform.tfstate
 .terraform
 terraform.tfstate.backup
 .terraform.lock.hcl
+
+# .NET build artifacts
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.user
+*.suo
